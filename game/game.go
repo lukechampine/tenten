@@ -163,7 +163,7 @@ func init() {
 // A Board represents a tenten game board.
 type Board [10][10]Color
 
-func (b *Board) isEmpty(x, y int) bool { return b[y][x] == Empty }
+func (b *Board) IsEmpty(x, y int) bool { return b[y][x] == Empty }
 func (b *Board) set(x, y int, c Color) { b[y][x] = c }
 
 // Copy copies b into dst.
@@ -229,7 +229,7 @@ func (b *Board) Place(p Piece, x, y int) int {
 
 	dots := p.Dots()
 	for _, d := range dots {
-		if d.X+x >= 10 || d.Y+y >= 10 || !b.isEmpty(d.X+x, d.Y+y) {
+		if d.X+x >= 10 || d.Y+y >= 10 || !b.IsEmpty(d.X+x, d.Y+y) {
 			return 0
 		}
 	}
