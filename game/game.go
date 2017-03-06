@@ -169,30 +169,40 @@ func (b *Board) set(x, y int, c Color) { b[y][x] = c }
 // Copy copies b into dst.
 func (b *Board) Copy(dst *Board) { copy(dst[:], b[:]) }
 
-func (b *Board) clearLines() int {
+func (b *Board) clearLines(newdots []Dot) int {
+	var checkRow, checkCol [10]bool
+	for _, d := range newdots {
+		checkCol[d.X] = true
+		checkRow[d.Y] = true
+	}
+
 	var rows, cols []int
 	for i := range b {
-		// check row i
-		clear := true
-		for x := range b {
-			if b[x][i] == Empty {
-				clear = false
-				break
+		if !checkRow[i] {
+			// check row i
+			clear := true
+			for x := range b {
+				if b[x][i] == Empty {
+					clear = false
+					break
+				}
+			}
+			if clear {
+				rows = append(rows, i)
 			}
 		}
-		if clear {
-			rows = append(rows, i)
-		}
-		clear = true
-		// check column i
-		for y := range b {
-			if b[i][y] == Empty {
-				clear = false
-				break
+		if !checkCol[i] {
+			// check column i
+			clear := true
+			for y := range b {
+				if b[i][y] == Empty {
+					clear = false
+					break
+				}
 			}
-		}
-		if clear {
-			cols = append(cols, i)
+			if clear {
+				cols = append(cols, i)
+			}
 		}
 	}
 	for _, r := range rows {
@@ -227,7 +237,7 @@ func (b *Board) Place(p Piece, x, y int) int {
 		b.set(d.X+x, d.Y+y, p.Color())
 	}
 	// point value is added dots + cleared dots
-	return len(dots) + b.clearLines()
+	return len(dots) + b.clearLines(dots)
 }
 
 type Game struct {
