@@ -261,8 +261,8 @@ func (g Game) NextBag() [3]Piece {
 	return Bags[g.rnd.Intn(len(Bags))]
 }
 
-func New() Game {
-	return Game{
+func New() *Game {
+	return &Game{
 		b:   new(Board),
 		rnd: rand.New(rand.NewSource(time.Now().Unix())),
 	}
