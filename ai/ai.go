@@ -5,13 +5,18 @@ import "github.com/lukechampine/tenten/game"
 func heuristic(b *game.Board) int {
 	// maximize empty dots
 	var emptyDots int
+	var emptyPerim int
 	for i := range b {
-		for _, c := range b[i] {
+		for j, c := range b[i] {
 			if c == game.Empty {
 				emptyDots++
+				if i == 0 || i == 9 || j == 0 || j == 9 {
+					emptyPerim++
+				}
 			}
 		}
 	}
+
 	// maximize empty lines
 	var emptyLines int
 	for i := range b {
@@ -40,7 +45,7 @@ func heuristic(b *game.Board) int {
 	}
 
 	// apply weights
-	h := emptyDots*1 + emptyLines*20
+	h := emptyDots*1 + emptyPerim*-1 + emptyLines*20
 	if !holdsLine1x5(b) {
 		h -= 50
 	}
