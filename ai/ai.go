@@ -3,17 +3,44 @@ package ai
 import "github.com/lukechampine/tenten/game"
 
 func heuristic(b *game.Board) int {
-	empty := 0
+	// maximize empty dots
+	var emptyDots int
 	for i := range b {
 		for _, c := range b[i] {
-			// maximize empty spaces
 			if c == game.Empty {
-				empty++
+				emptyDots++
 			}
 		}
 	}
+	// maximize empty lines
+	var emptyLines int
+	for i := range b {
+		// check row i
+		clear := true
+		for x := range b {
+			if b[x][i] != game.Empty {
+				clear = false
+				break
+			}
+		}
+		if clear {
+			emptyLines++
+		}
+		// check column i
+		clear = true
+		for y := range b {
+			if b[i][y] != game.Empty {
+				clear = false
+				break
+			}
+		}
+		if clear {
+			emptyLines++
+		}
+	}
+
 	// apply weights
-	h := empty * 1
+	h := emptyDots*1 + emptyLines*20
 	if !holdsLine1x5(b) {
 		h -= 50
 	}
