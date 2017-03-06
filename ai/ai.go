@@ -44,65 +44,61 @@ func heuristic(b *game.Board) int {
 		}
 	}
 
+	// maximize space for "dangerous" pieces
+	cl15 := capacityLine1x5(b)
+	cl51 := capacityLine5x1(b)
+	csq3 := capacitySq3x3(b)
+
 	// apply weights
-	h := emptyDots*1 + emptyPerim*-1 + emptyLines*20
-	if !holdsLine1x5(b) {
-		h -= 50
-	}
-	if !holdsLine5x1(b) {
-		h -= 50
-	}
-	if !holdsSq3x3(b) {
-		h -= 100
-	}
+	h := emptyDots*1 + emptyPerim*-1 + emptyLines*20 + cl15*20 + cl51*20 + csq3*50
 	return h
 }
 
-func holdsLine1x5(b *game.Board) bool {
+func capacityLine1x5(b *game.Board) (n int) {
 	for y := range b {
 		for x := 0; x < 10; x++ {
 			if b.IsEmpty(x, y) {
-				n := 1
+				l := 1
 				for ; x < 10 && b.IsEmpty(x, y); x++ {
-					n++
-				}
-				if n >= 5 {
-					return true
+					l++
+					if l >= 5 {
+						n++
+					}
 				}
 			}
 		}
 	}
-	return false
+	return
 }
 
-func holdsLine5x1(b *game.Board) bool {
+func capacityLine5x1(b *game.Board) (n int) {
 	for x := range b {
 		for y := 0; y < 10; y++ {
 			if b.IsEmpty(x, y) {
-				n := 1
+				l := 1
 				for ; y < 10 && b.IsEmpty(x, y); y++ {
-					n++
-				}
-				if n >= 5 {
-					return true
+					l++
+					if l >= 5 {
+						n++
+					}
 				}
 			}
 		}
 	}
-	return false
+	return
 }
 
-func holdsSq3x3(b *game.Board) bool {
+func capacitySq3x3(b *game.Board) (n int) {
 	for y := 0; y < 7; y++ {
 		for x := 0; x < 7; x++ {
 			if b.IsEmpty(x, y) && b.IsEmpty(x+1, y) && b.IsEmpty(x+2, y) &&
 				b.IsEmpty(x, y+1) && b.IsEmpty(x+1, y+1) && b.IsEmpty(x+2, y+1) &&
 				b.IsEmpty(x, y+2) && b.IsEmpty(x+1, y+2) && b.IsEmpty(x+2, y+2) {
-				return true
+				n++
 			}
 		}
 	}
-	return false
+	return
 }
 
 type Move struct {
