@@ -100,7 +100,12 @@ func holdsSq3x3(b *game.Board) bool {
 	return false
 }
 
-func Move(g *game.Game, bag [3]game.Piece) bool {
+type Move struct {
+	Piece game.Piece
+	X, Y  int
+}
+
+func BestMoves(b *game.Board, bag [3]game.Piece) [3]Move {
 	perms := [][3]game.Piece{
 		{bag[0], bag[1], bag[2]},
 		{bag[0], bag[2], bag[1]},
@@ -110,7 +115,7 @@ func Move(g *game.Game, bag [3]game.Piece) bool {
 		{bag[2], bag[1], bag[0]},
 	}
 	var scratch game.Board
-	var bestPerm [3]game.Piece
+	bestPerm := perms[0]
 	var bestX, bestY [3]int
 	maxH := -1000000
 	for _, perm := range perms {
@@ -123,7 +128,7 @@ func Move(g *game.Game, bag [3]game.Piece) bool {
 						for x3 := range scratch {
 						loop3:
 							for y3 := range scratch {
-								g.Board().Copy(&scratch)
+								b.Copy(&scratch)
 								if scratch.Place(perm[0], x1, y1) <= 0 {
 									continue loop1
 								} else if scratch.Place(perm[1], x2, y2) <= 0 {
@@ -143,10 +148,9 @@ func Move(g *game.Game, bag [3]game.Piece) bool {
 			}
 		}
 	}
-	for i, p := range bestPerm {
-		if !g.Place(p, bestX[i], bestY[i]) {
-			return false
-		}
+	return [3]Move{
+		{bestPerm[0], bestX[0], bestY[0]},
+		{bestPerm[1], bestX[1], bestY[1]},
+		{bestPerm[2], bestX[2], bestY[2]},
 	}
-	return true
 }
