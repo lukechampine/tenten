@@ -30,18 +30,26 @@ func Move(g *game.Game, bag [3]game.Piece) bool {
 	maxH := 0
 	for _, perm := range perms {
 		for x1 := range scratch {
+		loop1:
 			for y1 := range scratch {
 				for x2 := range scratch {
+				loop2:
 					for y2 := range scratch {
 						for x3 := range scratch {
+						loop3:
 							for y3 := range scratch {
 								g.Board().Copy(&scratch)
-								if scratch.Place(perm[0], x1, y1) > 0 && scratch.Place(perm[1], x2, y2) > 0 && scratch.Place(perm[2], x3, y3) > 0 {
-									if h := heuristic(&scratch); h > maxH {
-										maxH = h
-										bestPerm = perm
-										bestX[0], bestX[1], bestX[2], bestY[0], bestY[1], bestY[2] = x1, x2, x3, y1, y2, y3
-									}
+								if scratch.Place(perm[0], x1, y1) <= 0 {
+									continue loop1
+								} else if scratch.Place(perm[1], x2, y2) <= 0 {
+									continue loop2
+								} else if scratch.Place(perm[2], x3, y3) <= 0 {
+									continue loop3
+								}
+								if h := heuristic(&scratch); h > maxH {
+									maxH = h
+									bestPerm = perm
+									bestX[0], bestX[1], bestX[2], bestY[0], bestY[1], bestY[2] = x1, x2, x3, y1, y2, y3
 								}
 							}
 						}
