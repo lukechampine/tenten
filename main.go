@@ -87,15 +87,30 @@ func main() {
 lost:
 	for {
 		moves := ai.BestMoves(g.Board(), g.NextBag())
-		for i, m := range moves {
-			print("\033[H\033[2J")
-			printBoard(g.Board())
-			println()
-			printMoves(moves[i:])
-			time.Sleep(1000 * time.Millisecond)
+		print("\033[H\033[2J")
+		println("Score:", g.Score())
+		println("Heuristic:", ai.Heuristic(g.Board()))
+		println()
+		printBoard(g.Board())
+		println()
+		printMoves(moves[:])
 
+		for i, m := range moves {
+			time.Sleep(0 * time.Millisecond)
 			if !g.Place(m.Piece, m.X, m.Y) {
 				break lost
+			}
+
+			print("\033[H\033[2J")
+			println("Score:", g.Score())
+			println("Heuristic:", ai.Heuristic(g.Board()))
+			println()
+			printBoard(g.Board())
+			println()
+			if i+1 < len(moves) {
+				printMoves(moves[i+1:])
+			} else {
+				println("\nThinking...")
 			}
 		}
 		n++
