@@ -2,21 +2,7 @@ package ai
 
 import "github.com/lukechampine/tenten/game"
 
-func heuristic(b *game.Board) int {
-	// maximize empty dots
-	var emptyDots int
-	var emptyPerim int
-	for i := range b {
-		for j, c := range b[i] {
-			if c == game.Empty {
-				emptyDots++
-				if i == 0 || i == 9 || j == 0 || j == 9 {
-					emptyPerim++
-				}
-			}
-		}
-	}
-
+func Heuristic(b *game.Board) int {
 	// maximize empty lines
 	var emptyLines int
 	for i := range b {
@@ -44,13 +30,30 @@ func heuristic(b *game.Board) int {
 		}
 	}
 
+	// maximize contiguity
+	var contiguous, disparate int
+	for i := 1; i < 10; i++ {
+		for j := 1; j < 10; j++ {
+			if b[i][j] != game.Empty {
+				if b[i-1][j] != game.Empty && b[i][j-1] != game.Empty {
+					contiguous += 4
+				} else if b[i-1][j] != game.Empty || b[i][j-1] != game.Empty {
+					contiguous++
+				} else {
+					disparate++
+				}
+			}
+
+		}
+	}
+
 	// maximize space for "dangerous" pieces
 	cl15 := capacityLine1x5(b)
 	cl51 := capacityLine5x1(b)
 	csq3 := capacitySq3x3(b)
 
 	// apply weights
-	h := emptyDots*1 + emptyPerim*-1 + emptyLines*20 + cl15*20 + cl51*20 + csq3*50
+	h := emptyLines*20 + contiguous*2 + disparate*-10 + cl15*20 + cl51*20 + csq3*50
 	return h
 }
 
@@ -137,7 +140,7 @@ func BestMoves(b *game.Board, bag [3]game.Piece) [3]Move {
 								} else if scratch.Place(perm[2], x3, y3) <= 0 {
 									continue loop3
 								}
-								if h := heuristic(&scratch); h > maxH {
+								if h := Heuristic(&scratch); h > maxH {
 									maxH = h
 									bestPerm = perm
 									bestX[0], bestX[1], bestX[2], bestY[0], bestY[1], bestY[2] = x1, x2, x3, y1, y2, y3
