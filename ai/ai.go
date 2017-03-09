@@ -60,13 +60,11 @@ func Heuristic(b *game.Board) int {
 func capacityLine1x5(b *game.Board) (n int) {
 	for y := range b {
 		for x := 0; x < 10; x++ {
-			if b.IsEmpty(x, y) {
-				l := 1
-				for ; x < 10 && b.IsEmpty(x, y); x++ {
-					l++
-					if l >= 5 {
-						n++
-					}
+			l := 0
+			for ; x < 10 && b.IsEmpty(x, y); x++ {
+				l++
+				if l >= 5 {
+					n++
 				}
 			}
 		}
@@ -77,13 +75,11 @@ func capacityLine1x5(b *game.Board) (n int) {
 func capacityLine5x1(b *game.Board) (n int) {
 	for x := range b {
 		for y := 0; y < 10; y++ {
-			if b.IsEmpty(x, y) {
-				l := 1
-				for ; y < 10 && b.IsEmpty(x, y); y++ {
-					l++
-					if l >= 5 {
-						n++
-					}
+			l := 0
+			for ; y < 10 && b.IsEmpty(x, y); y++ {
+				l++
+				if l >= 5 {
+					n++
 				}
 			}
 		}
