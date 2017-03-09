@@ -88,8 +88,8 @@ func capacityLine5x1(b *game.Board) (n int) {
 }
 
 func capacitySq3x3(b *game.Board) (n int) {
-	for y := 0; y < 7; y++ {
-		for x := 0; x < 7; x++ {
+	for y := 0; y < 8; y++ {
+		for x := 0; x < 8; x++ {
 			if b.IsEmpty(x, y) && b.IsEmpty(x+1, y) && b.IsEmpty(x+2, y) &&
 				b.IsEmpty(x, y+1) && b.IsEmpty(x+1, y+1) && b.IsEmpty(x+2, y+1) &&
 				b.IsEmpty(x, y+2) && b.IsEmpty(x+1, y+2) && b.IsEmpty(x+2, y+2) {
