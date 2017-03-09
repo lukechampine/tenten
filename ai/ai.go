@@ -123,20 +123,29 @@ func BestMoves(b *game.Board, bag [3]game.Piece) [3]Move {
 	var bestX, bestY [3]int
 	maxH := -1000000
 	for _, perm := range perms {
-		for x1 := range scratch1 {
-			for y1 := range scratch1 {
+		for x1 := 0; x1 <= 10-perm[0].Width(); x1++ {
+			for y1 := 0; y1 <= 10-perm[0].Height(); y1++ {
+				if !b.IsEmpty(x1, y1) {
+					continue
+				}
 				b.Copy(&scratch1)
 				if scratch1.Place(perm[0], x1, y1) <= 0 {
 					continue
 				}
-				for x2 := range scratch2 {
-					for y2 := range scratch2 {
+				for x2 := 0; x2 <= 10-perm[1].Width(); x2++ {
+					for y2 := 0; y2 <= 10-perm[1].Height(); y2++ {
+						if !scratch1.IsEmpty(x2, y2) {
+							continue
+						}
 						scratch1.Copy(&scratch2)
 						if scratch2.Place(perm[1], x2, y2) <= 0 {
 							continue
 						}
-						for x3 := range scratch3 {
-							for y3 := range scratch3 {
+						for x3 := 0; x3 <= 10-perm[2].Width(); x3++ {
+							for y3 := 0; y3 < 10-perm[2].Height(); y3++ {
+								if !scratch2.IsEmpty(x3, y3) {
+									continue
+								}
 								scratch2.Copy(&scratch3)
 								if scratch3.Place(perm[2], x3, y3) <= 0 {
 									continue

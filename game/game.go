@@ -54,6 +54,8 @@ const (
 
 func (p Piece) Color() Color { return pieceColors[p] }
 func (p Piece) Dots() []Dot  { return pieceDots[p] }
+func (p Piece) Height() int  { return pieceHeights[p] }
+func (p Piece) Width() int   { return pieceWidths[p] }
 
 var pieceColors = [NumPieces + 1]Color{
 	invalid: Empty,
@@ -143,6 +145,52 @@ var pieceDots = [NumPieces + 1][]Dot{
 		{0, 0}, {1, 0}, {2, 0},
 		{0, 1}, {1, 1}, {2, 1},
 		{0, 2}, {1, 2}, {2, 2}},
+}
+
+var pieceHeights = [NumPieces + 1]int{
+	invalid: 0,
+	Line1x2: 2,
+	Line1x3: 3,
+	Line1x4: 4,
+	Line1x5: 5,
+	Line2x1: 1,
+	Line3x1: 1,
+	Line4x1: 1,
+	Line5x1: 1,
+	Ltr2x2:  2,
+	Ltl2x2:  2,
+	Lbr2x2:  2,
+	Lbl2x2:  2,
+	Ltr3x3:  3,
+	Ltl3x3:  3,
+	Lbr3x3:  3,
+	Lbl3x3:  3,
+	Sq1x1:   1,
+	Sq2x2:   2,
+	Sq3x3:   3,
+}
+
+var pieceWidths = [NumPieces + 1]int{
+	invalid: 0,
+	Line1x2: 1,
+	Line1x3: 1,
+	Line1x4: 1,
+	Line1x5: 1,
+	Line2x1: 2,
+	Line3x1: 3,
+	Line4x1: 4,
+	Line5x1: 5,
+	Ltr2x2:  2,
+	Ltl2x2:  2,
+	Lbr2x2:  2,
+	Lbl2x2:  2,
+	Ltr3x3:  3,
+	Ltl3x3:  3,
+	Lbr3x3:  3,
+	Lbl3x3:  3,
+	Sq1x1:   1,
+	Sq2x2:   2,
+	Sq3x3:   3,
 }
 
 var Bags [NumPieces * NumPieces * NumPieces][3]Piece
