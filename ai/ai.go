@@ -101,39 +101,38 @@ func makeHBoard(b *game.Board, p game.Piece) *hboard {
 }
 
 func (h *hboard) heuristic() int {
-	// maximize empty lines
-	var emptyLines int
-	for i := range h.rows {
-		if h.rows[i] == 0 {
+	var emptyLines, cl15, cl51, csq3, contiguous, disparate int
+	for i, row := range h.rows {
+		// maximize empty lines
+		if row == 0 {
 			emptyLines++
 		}
-		if h.cols[i] == 0 {
-			emptyLines++
-		}
-	}
 
-	// maximize space for "dangerous" pieces
-	var cl15 int
-	for _, row := range h.rows {
+		// maximize space for "dangerous" pieces
 		cl15 += stride5Lookup[row]
-	}
-	var cl51 int
-	for _, col := range h.cols {
-		cl51 += stride5Lookup[col]
-	}
-	var csq3 int
-	for i := range h.rows[2:] {
-		// bitwise | 3 rows, then count strides of 3
-		csq3 += stride3Lookup[h.rows[i]|h.rows[i+1]|h.rows[i+2]]
+
+		// maximize space for "dangerous" pieces
+		if i >= 2 {
+			// bitwise | 3 rows, then count strides of 3
+			csq3 += stride3Lookup[h.rows[i]|h.rows[i-1]|h.rows[i-2]]
+		}
+
+		// maximize contiguity
+		if i >= 1 {
+			// bitwise ^ 2 rows -- 0 means contiguous, 1 means disparate
+			ones := int(popcount(h.rows[i] ^ h.rows[i-1]))
+			contiguous += 10 - ones
+			disparate += ones
+		}
 	}
 
-	// maximize contiguity
-	var contiguous, disparate int
-	for i := range h.rows[1:] {
-		// bitwise ^ 2 rows -- 0 means contiguous, 1 means disparate
-		ones := int(popcount(h.rows[i] ^ h.rows[i+1]))
-		contiguous += 10 - ones
-		disparate += ones
+	for _, col := range h.cols {
+		// maximize empty lines
+		if col == 0 {
+			emptyLines++
+		}
+		// maximize space for "dangerous" pieces
+		cl51 += stride5Lookup[col]
 	}
 
 	// apply weights
