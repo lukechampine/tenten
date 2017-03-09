@@ -1,8 +1,11 @@
 package game
 
 import (
+	"bytes"
 	"math/rand"
 	"time"
+
+	"github.com/fatih/color"
 )
 
 type Color int
@@ -285,6 +288,39 @@ func (b *Board) Place(p Piece, x, y int) int {
 
 	// point value is added dots + cleared dots
 	return len(dots) + b.clearLines(check)
+}
+
+func (b *Board) String() string {
+	var buf bytes.Buffer
+	for _, row := range b {
+		for _, c := range row {
+			switch c {
+			case Empty:
+				buf.WriteString("□")
+			case Red:
+				color.New(color.FgRed).Fprint(&buf, "■")
+			case Pink:
+				color.New(color.FgMagenta, color.Bold).Fprint(&buf, "■")
+			case Orange:
+				color.New(color.FgRed, color.Bold).Fprint(&buf, "■")
+			case Yellow:
+				color.New(color.FgYellow).Fprint(&buf, "■")
+			case Green:
+				color.New(color.FgGreen).Fprint(&buf, "■")
+			case Teal:
+				color.New(color.FgCyan, color.Faint).Fprint(&buf, "■")
+			case Cyan:
+				color.New(color.FgCyan).Fprint(&buf, "■")
+			case Blue:
+				color.New(color.FgBlue).Fprint(&buf, "■")
+			case Purple:
+				color.New(color.FgHiMagenta, color.Faint).Fprint(&buf, "■")
+			}
+			buf.WriteByte(' ')
+		}
+		buf.WriteByte('\n')
+	}
+	return buf.String()
 }
 
 type Game struct {
