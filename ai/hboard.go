@@ -86,6 +86,7 @@ func (h *hboard) place(p game.Piece, x, y int) bool {
 
 func (h *hboard) heuristic() int {
 	var emptyLines, cl15, cl51, csq3, contiguous, disparate int
+	var prev, prev2 uint16
 	for i, row := range h.rows {
 		// maximize empty lines
 		if row == 0 {
@@ -98,16 +99,17 @@ func (h *hboard) heuristic() int {
 		// maximize space for "dangerous" pieces
 		if i >= 2 {
 			// bitwise | 3 rows, then count strides of 3
-			csq3 += stride3Lookup[h.rows[i]|h.rows[i-1]|h.rows[i-2]]
+			csq3 += stride3Lookup[row|prev|prev2]
 		}
 
 		// maximize contiguity
 		if i >= 1 {
 			// bitwise ^ 2 rows -- 0 means contiguous, 1 means disparate
-			ones := int(popcount(h.rows[i] ^ h.rows[i-1]))
+			ones := int(popcount(row ^ prev))
 			contiguous += 10 - ones
 			disparate += ones
 		}
+		prev2, prev = prev, row
 	}
 
 	for _, col := range h.cols {
