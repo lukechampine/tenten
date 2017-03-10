@@ -50,7 +50,8 @@ func printMoves(moves []ai.Move) {
 }
 
 func main() {
-	g := game.New()
+	seed := time.Now().Unix()
+	g := game.New(seed)
 	n := 0
 	start := time.Now()
 lost:
@@ -87,5 +88,5 @@ lost:
 	elapsed := time.Since(start)
 	print("\033[H\033[2J")
 	println(g.Board().String())
-	fmt.Printf("\nFinal Score: %v\nPlayed %v bags in %v\nAverage move time: %v/bag\n", g.Score(), n, elapsed, elapsed/time.Duration(n))
+	fmt.Printf("\nFinal Score: %v\nPlayed %v bags in %v\nAverage move time: %v/bag\nSeed: %v\n", g.Score(), n, elapsed, elapsed/time.Duration(n), seed)
 }

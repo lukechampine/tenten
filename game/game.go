@@ -3,7 +3,6 @@ package game
 import (
 	"bytes"
 	"math/rand"
-	"time"
 
 	"github.com/fatih/color"
 )
@@ -344,9 +343,9 @@ func (g Game) NextBag() [3]Piece {
 	return Bags[g.rnd.Intn(len(Bags))]
 }
 
-func New() *Game {
+func New(seed int64) *Game {
 	return &Game{
 		b:   new(Board),
-		rnd: rand.New(rand.NewSource(time.Now().Unix())),
+		rnd: rand.New(rand.NewSource(seed)),
 	}
 }
