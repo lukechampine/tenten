@@ -47,7 +47,7 @@ type hboard struct {
 	weights   [5]float64
 }
 
-func (h *hboard) place(p game.Piece, x, y int) bool {
+func (h *hboard) place(x, y int) bool {
 	for i, prow := range h.piecerows {
 		if (prow<<uint16(x))&h.origrows[y+i] != 0 {
 			return false
@@ -167,4 +167,8 @@ func makeHBoard(b *game.Board, p game.Piece) *hboard {
 	h.weights = [5]float64{0.15202116533449683, 0.6069919744438863, 0.07894957638812392, 0.05363780049574478, 0.09963062854659965}
 
 	return h
+}
+
+func copyHBoard(dst, src *hboard) {
+	dst.origrows, dst.origcols = src.rows, src.cols
 }
