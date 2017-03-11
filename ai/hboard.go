@@ -44,6 +44,7 @@ type hboard struct {
 	cols      [10]uint16
 	piecerows []uint16
 	piececols []uint16
+	weights   [5]float64
 }
 
 func (h *hboard) place(p game.Piece, x, y int) bool {
@@ -84,8 +85,8 @@ func (h *hboard) place(p game.Piece, x, y int) bool {
 	return true
 }
 
-func (h *hboard) heuristic() int {
-	var emptyLines, cl15, cl51, csq3, contiguous, disparate int
+func (h *hboard) heuristic() float64 {
+	var emptyLines, cl15, cl51, csq3, contiguous int
 	var prev, prev2 uint16
 	for i, row := range h.rows {
 		// maximize empty lines
@@ -104,11 +105,10 @@ func (h *hboard) heuristic() int {
 
 		// maximize contiguity
 		if i >= 1 {
-			// bitwise ^ 2 rows -- 0 means contiguous, 1 means disparate
-			ones := int(popcount(row ^ prev))
-			contiguous += 10 - ones
-			disparate += ones
+			// bitwise ^ 2 rows -- 0 means contiguous
+			contiguous += 10 - int(popcount(row^prev))
 		}
+
 		prev2, prev = prev, row
 	}
 
@@ -117,12 +117,26 @@ func (h *hboard) heuristic() int {
 		if col == 0 {
 			emptyLines++
 		}
+
 		// maximize space for "dangerous" pieces
 		cl51 += stride5Lookup[col]
+
+		// maximize contiguity
+		if i >= 1 {
+			// bitwise ^ 2 cols -- 0 means contiguous
+			contiguous += 10 - int(popcount(col^prev))
+		}
+
+		prev = col
 	}
 
 	// apply weights
-	return emptyLines*20 + contiguous*2 + disparate*-10 + cl15*20 + cl51*20 + csq3*50
+	return 0 +
+		h.weights[0]*float64(emptyLines)/100 +
+		h.weights[1]*float64(contiguous)/180 +
+		h.weights[2]*float64(cl15)/60 +
+		h.weights[3]*float64(cl51)/60 +
+		h.weights[4]*float64(csq3)/64
 }
 
 func makeHBoard(b *game.Board, p game.Piece) *hboard {
@@ -149,6 +163,8 @@ func makeHBoard(b *game.Board, p game.Piece) *hboard {
 	for _, d := range p.Dots() {
 		h.piececols[d.X] |= (1 << uint16(d.Y))
 	}
+
+	h.weights = [5]float64{0.15202116533449683, 0.6069919744438863, 0.07894957638812392, 0.05363780049574478, 0.09963062854659965}
 
 	return h
 }

@@ -1,8 +1,12 @@
 package ai
 
-import "github.com/lukechampine/tenten/game"
+import (
+	"math"
 
-func Heuristic(b *game.Board) int {
+	"github.com/lukechampine/tenten/game"
+)
+
+func Heuristic(b *game.Board) float64 {
 	return makeHBoard(b, 0).heuristic()
 }
 
@@ -23,7 +27,7 @@ func BestMoves(b *game.Board, bag [3]game.Piece) [3]Move {
 	var scratch1, scratch2 game.Board
 	bestPerm := perms[0]
 	var bestX, bestY [3]int
-	maxH := -1000000
+	maxH := math.Inf(-1)
 	for _, perm := range perms {
 		for x1 := 0; x1 <= 10-perm[0].Width(); x1++ {
 			for y1 := 0; y1 <= 10-perm[0].Height(); y1++ {
