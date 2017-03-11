@@ -49,6 +49,16 @@ func printMoves(moves []ai.Move) {
 	}
 }
 
+func formatHeuristic(h float64) string {
+	if h > 0.60 {
+		return color.GreenString("%0.2f", h)
+	} else if h > 0.4 {
+		return color.YellowString("%0.2f", h)
+	} else {
+		return color.RedString("%0.2f", h)
+	}
+}
+
 func main() {
 	seed := time.Now().Unix()
 	g := game.New(seed)
@@ -57,12 +67,7 @@ func main() {
 lost:
 	for {
 		moves := ai.BestMoves(g.Board(), g.NextBag())
-		print("\033[H\033[2J")
-		println("Score:", g.Score())
-		println("Heuristic:", ai.Heuristic(g.Board()))
-		println()
-		println(g.Board().String())
-		println()
+		fmt.Printf("\033[H\033[2JScore: %v\nHeuristic: %v\n\n%v\n", g.Score(), formatHeuristic(ai.Heuristic(g.Board())), g.Board())
 		printMoves(moves[:])
 
 		for i, m := range moves {
@@ -71,12 +76,7 @@ lost:
 				break lost
 			}
 
-			print("\033[H\033[2J")
-			println("Score:", g.Score())
-			println("Heuristic:", ai.Heuristic(g.Board()))
-			println()
-			println(g.Board().String())
-			println()
+			fmt.Printf("\033[H\033[2JScore: %v\nHeuristic: %v\n\n%v\n", g.Score(), formatHeuristic(ai.Heuristic(g.Board())), g.Board())
 			if i+1 < len(moves) {
 				printMoves(moves[i+1:])
 			} else {
@@ -86,7 +86,6 @@ lost:
 		n++
 	}
 	elapsed := time.Since(start)
-	print("\033[H\033[2J")
-	println(g.Board().String())
-	fmt.Printf("\nFinal Score: %v\nPlayed %v bags in %v\nAverage move time: %v/bag\nSeed: %v\n", g.Score(), n, elapsed, elapsed/time.Duration(n), seed)
+	fmt.Print("\033[H\033[2J", g.Board().String())
+	fmt.Printf("\n\nFinal Score: %v\nPlayed %v bags in %v\nAverage move time: %v/bag\nSeed: %v\n", g.Score(), n, elapsed, elapsed/time.Duration(n), seed)
 }
