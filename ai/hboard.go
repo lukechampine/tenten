@@ -5,8 +5,11 @@ import "github.com/lukechampine/tenten/game"
 const fullLine = (uint16(1) << 10) - 1
 
 var popcounts [256]byte
-var stride3Lookup [1 << 16]int // only need 10 bits, but 16 eliminates the bounds check
-var stride5Lookup [1 << 16]int // only need 10 bits, but 16 eliminates the bounds check
+
+// only need 10 bits for these tables, but 16 eliminates the bounds check
+var stride3Lookup [1 << 16]int
+var stride5Lookup [1 << 16]int
+var groupsLookup [1 << 16]int
 
 func init() {
 	for i := range popcounts {
@@ -29,6 +32,14 @@ func init() {
 				}
 				if l >= 5 {
 					stride5Lookup[u]++
+				}
+			}
+		}
+		for i := uint16(0); i < 10; i++ {
+			if u&(1<<i) != 0 {
+				groupsLookup[u]++
+				for i < 10 && (u&(1<<i) != 0) {
+					i++
 				}
 			}
 		}
@@ -86,13 +97,16 @@ func (h *hboard) place(x, y int) bool {
 }
 
 func (h *hboard) heuristic() float64 {
-	var emptyLines, cl15, cl51, csq3, contiguous int
+	var emptyLines, groups, cl15, cl51, csq3 int
 	var prev, prev2 uint16
 	for i, row := range h.rows {
 		// maximize empty lines
 		if row == 0 {
 			emptyLines++
 		}
+
+		// maximize contiguity
+		groups += groupsLookup[row]
 
 		// maximize space for "dangerous" pieces
 		cl15 += stride5Lookup[row]
@@ -101,12 +115,6 @@ func (h *hboard) heuristic() float64 {
 		if i >= 2 {
 			// bitwise | 3 rows, then count strides of 3
 			csq3 += stride3Lookup[row|prev|prev2]
-		}
-
-		// maximize contiguity
-		if i >= 1 {
-			// bitwise ^ 2 rows -- 0 means contiguous
-			contiguous += 10 - int(popcount(row^prev))
 		}
 
 		prev2, prev = prev, row
@@ -118,22 +126,17 @@ func (h *hboard) heuristic() float64 {
 			emptyLines++
 		}
 
+		// maximize contiguity
+		groups += groupsLookup[col]
+
 		// maximize space for "dangerous" pieces
 		cl51 += stride5Lookup[col]
-
-		// maximize contiguity
-		if i >= 1 {
-			// bitwise ^ 2 cols -- 0 means contiguous
-			contiguous += 10 - int(popcount(col^prev))
-		}
-
-		prev = col
 	}
 
 	// apply weights
 	return 0 +
-		h.weights[0]*float64(emptyLines)/100 +
-		h.weights[1]*float64(contiguous)/180 +
+		h.weights[0]*float64(emptyLines)/20 +
+		h.weights[1]*float64(100-groups)/100 +
 		h.weights[2]*float64(cl15)/60 +
 		h.weights[3]*float64(cl51)/60 +
 		h.weights[4]*float64(csq3)/64
@@ -164,7 +167,7 @@ func makeHBoard(b *game.Board, p game.Piece) *hboard {
 		h.piececols[d.X] |= (1 << uint16(d.Y))
 	}
 
-	h.weights = [5]float64{0.15202116533449683, 0.6069919744438863, 0.07894957638812392, 0.05363780049574478, 0.09963062854659965}
+	h.weights = [5]float64{0.0, 0.5, 0.125, 0.125, 0.25}
 
 	return h
 }
