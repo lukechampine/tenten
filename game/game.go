@@ -51,13 +51,35 @@ const (
 	Sq2x2   // 2x2 square
 	Sq3x3   // 3x3 square
 
-	NumPieces = Sq3x3
+	NumPieces = int(Sq3x3)
 )
 
 func (p Piece) Color() Color { return pieceColors[p] }
 func (p Piece) Dots() []Dot  { return pieceDots[p] }
 func (p Piece) Height() int  { return pieceHeights[p] }
 func (p Piece) Width() int   { return pieceWidths[p] }
+
+var Pieces = [NumPieces]Piece{
+	Line1x2,
+	Line1x3,
+	Line1x4,
+	Line1x5,
+	Line2x1,
+	Line3x1,
+	Line4x1,
+	Line5x1,
+	Ltr2x2,
+	Ltl2x2,
+	Lbr2x2,
+	Lbl2x2,
+	Ltr3x3,
+	Ltl3x3,
+	Lbr3x3,
+	Lbl3x3,
+	Sq1x1,
+	Sq2x2,
+	Sq3x3,
+}
 
 var pieceColors = [NumPieces + 1]Color{
 	invalid: Empty,

@@ -3,12 +3,8 @@ tenten
 
 An AI for the game [1010, by Gram Games](http://1010ga.me).
 
-Current best:
+The AI uses naive [Monte Carlo tree
+search](https://en.wikipedia.org/wiki/Monte_Carlo_tree_search) without an
+expert policy or value approximator.
 
-```
-Final Score: 670449
-Played 27556 bags in 12m28.941665049s
-Average move time: 27.178896ms/bag
-Seed: 4
-```
-
+Current best: 2,364,370 points

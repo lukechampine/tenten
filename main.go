@@ -10,12 +10,18 @@ import (
 	"github.com/lukechampine/tenten/game"
 )
 
-func printMoves(moves []ai.Move) {
+const moveDelay = 500 * time.Millisecond
+const thinkingTime = 1000 * time.Millisecond
+
+func printBag(pieces [3]game.Piece, placed [3]bool) {
 	var grid [5][18]game.Color
-	for i, m := range moves {
-		for _, d := range m.Piece.Dots() {
-			x := d.X + (len(moves)-i-1)*6
-			grid[d.Y][x] = m.Piece.Color()
+	for i, p := range pieces {
+		if placed[i] {
+			continue
+		}
+		for _, d := range p.Dots() {
+			x := d.X + (len(pieces)-i-1)*6
+			grid[d.Y][x] = p.Color()
 		}
 	}
 
@@ -23,7 +29,7 @@ func printMoves(moves []ai.Move) {
 		for _, c := range row {
 			switch c {
 			case game.Empty:
-				print(" ")
+				fmt.Print(" ")
 			case game.Red:
 				color.New(color.FgRed).Print("■")
 			case game.Pink:
@@ -43,19 +49,19 @@ func printMoves(moves []ai.Move) {
 			case game.Purple:
 				color.New(color.FgHiMagenta, color.Faint).Print("■")
 			}
-			print(" ")
+			fmt.Print(" ")
 		}
-		println()
+		fmt.Println()
 	}
 }
 
-func formatHeuristic(h float64) string {
-	if h > 0.60 {
-		return color.GreenString("%0.2f", h)
-	} else if h > 0.4 {
-		return color.YellowString("%0.2f", h)
+func formatEvaled(n int) string {
+	if n > 100000 {
+		return color.GreenString("%v", n)
+	} else if n > 10000 {
+		return color.YellowString("%v", n)
 	} else {
-		return color.RedString("%0.2f", h)
+		return color.RedString("%v", n)
 	}
 }
 
@@ -66,22 +72,27 @@ func main() {
 	start := time.Now()
 lost:
 	for {
-		moves := ai.BestMoves(g.Board(), g.NextBag())
-		fmt.Printf("\033[H\033[2JScore: %v\nHeuristic: %v\n\n%v\n", g.Score(), formatHeuristic(ai.Heuristic(g.Board())), g.Board())
-		printMoves(moves[:])
+		bag := g.NextBag()
+		fmt.Printf("\033[H\033[2JScore: %v\nEvaluated ... board states\n\n%v\n", g.Score(), g.Board())
+		placed := [3]bool{false, false, false}
+		printBag(bag, placed)
 
-		for i, m := range moves {
-			time.Sleep(0 * time.Millisecond)
+		moves, evaled := ai.BestMoves(g.Board(), bag, thinkingTime)
+		for _, m := range moves {
 			if !g.Place(m.Piece, m.X, m.Y) {
 				break lost
 			}
-
-			fmt.Printf("\033[H\033[2JScore: %v\nHeuristic: %v\n\n%v\n", g.Score(), formatHeuristic(ai.Heuristic(g.Board())), g.Board())
-			if i+1 < len(moves) {
-				printMoves(moves[i+1:])
-			} else {
-				println("\nThinking...")
+			// remove piece
+			for i := range bag {
+				if bag[i] == m.Piece && !placed[i] {
+					placed[i] = true
+					break
+				}
 			}
+			fmt.Printf("\033[H\033[2JScore: %v\nEvaluated %v board states\n\n%v\n",
+				g.Score(), formatEvaled(evaled), g.Board())
+			printBag(bag, placed)
+			time.Sleep(moveDelay)
 		}
 		n++
 	}
